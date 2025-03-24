@@ -1,65 +1,96 @@
-// Sample character data
-let characters = [
-  { name: "Character 1", image: "assets/character1.gif", votes: 0 },
-  { name: "Character 2", image: "assets/character2.gif", votes: 0 },
-];
-
-// Function to display characters
-function displayCharacters() {
+document.addEventListener("DOMContentLoaded", () => {
   const characterBar = document.getElementById("character-bar");
-  characterBar.innerHTML = ""; // Clear existing characters
+  const nameDisplay = document.getElementById("name");
+  const imageDisplay = document.getElementById("image");
+  const voteCount = document.getElementById("vote-count");
+  const voteForm = document.getElementById("votes-form");
+  const voteInput = document.getElementById("votes");
+  const resetBtn = document.getElementById("reset-btn");
+  const characterForm = document.getElementById("character-form");
+  const newNameInput = document.getElementById("new-name");
+  const imageUrlInput = document.getElementById("image-url");
 
-  characters.forEach((character, index) => {
-    const characterElement = document.createElement("div");
-    characterElement.innerText = character.name;
-    characterElement.classList.add("character-item");
-    characterElement.addEventListener("click", () => selectCharacter(index));
-    characterBar.appendChild(characterElement);
+  // Initial characters (mock data if you don't have JSON server)
+  let characters = [
+    {
+      id: 1,
+      name: "Naruto",
+      image:
+        "https://upload.wikimedia.org/wikipedia/en/9/94/Naruto_Uzumaki.png",
+      votes: 5,
+    },
+    {
+      id: 2,
+      name: "Sasuke",
+      image:
+        "https://upload.wikimedia.org/wikipedia/en/7/79/SasukeUchihaPartII.png",
+      votes: 2,
+    },
+  ];
+
+  let currentCharacter = null;
+
+  // Load characters into character bar
+  function loadCharacters() {
+    characterBar.innerHTML = ""; // Clear previous characters
+    characters.forEach((char) => {
+      const span = document.createElement("span");
+      span.textContent = char.name;
+      span.addEventListener("click", () => displayCharacter(char));
+      characterBar.appendChild(span);
+    });
+  }
+
+  // Show selected character in main display
+  function displayCharacter(character) {
+    currentCharacter = character;
+    nameDisplay.textContent = character.name;
+    imageDisplay.src = character.image;
+    voteCount.textContent = character.votes;
+  }
+
+  // Handle vote form submission
+  voteForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (!currentCharacter) return;
+
+    const newVotes = parseInt(voteInput.value);
+    if (!isNaN(newVotes)) {
+      currentCharacter.votes += newVotes;
+      voteCount.textContent = currentCharacter.votes;
+      voteForm.reset();
+    }
   });
-}
 
-// Function to select a character
-function selectCharacter(index) {
-  const character = characters[index];
-  document.getElementById("name").innerText = character.name;
-  document.getElementById("image").src = character.image;
-  document.getElementById("vote-count").innerText = character.votes;
-}
+  // Handle reset votes
+  resetBtn.addEventListener("click", () => {
+    if (!currentCharacter) return;
 
-// Function to add votes
-document.getElementById("votes-form").addEventListener("submit", (e) => {
-  e.preventDefault();
-  const votes = parseInt(document.getElementById("votes").value);
-  const currentCharacter = characters.find(
-    (char) => char.name === document.getElementById("name").innerText
-  );
-  if (currentCharacter) {
-    currentCharacter.votes += votes;
-    document.getElementById("vote-count").innerText = currentCharacter.votes;
-  }
-  document.getElementById("votes").value = ""; // Clear input
-});
-
-// Function to reset votes
-document.getElementById("reset-btn").addEventListener("click", () => {
-  const currentCharacter = characters.find(
-    (char) => char.name === document.getElementById("name").innerText
-  );
-  if (currentCharacter) {
     currentCharacter.votes = 0;
-    document.getElementById("vote-count").innerText = currentCharacter.votes;
-  }
-});
+    voteCount.textContent = 0;
+  });
 
-// Function to add a new character
-document.getElementById("character-form").addEventListener("submit", (e) => {
-  e.preventDefault();
-  const newName = document.getElementById("new-name").value;
-  const newImageUrl = document.getElementById("image-url").value;
-  characters.push({ name: newName, image: newImageUrl, votes: 0 });
-  displayCharacters();
-  document.getElementById("character-form").reset(); // Clear form
-});
+  // Handle adding new character
+  characterForm.addEventListener("submit", (e) => {
+    e.preventDefault();
 
-// Initial display of characters
-displayCharacters();
+    const newName = newNameInput.value.trim();
+    const newImage = imageUrlInput.value.trim();
+
+    if (newName && newImage) {
+      const newCharacter = {
+        id: characters.length + 1,
+        name: newName,
+        image: newImage,
+        votes: 0,
+      };
+
+      characters.push(newCharacter);
+      loadCharacters(); // Re-render the character bar
+      characterForm.reset();
+    }
+  });
+
+  // Load everything on page start
+  loadCharacters();
+});
