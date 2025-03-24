@@ -10,20 +10,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const newNameInput = document.getElementById("new-name");
   const imageUrlInput = document.getElementById("image-url");
 
-  // Initial characters (mock data if you don't have JSON server)
+  // Initial characters using local image files
   let characters = [
     {
       id: 1,
       name: "Naruto",
-      image:
-        "https://upload.wikimedia.org/wikipedia/en/9/94/Naruto_Uzumaki.png",
+      image: "naruto.png", // Make sure this file exists in your project directory
       votes: 5,
     },
     {
       id: 2,
       name: "Sasuke",
-      image:
-        "https://upload.wikimedia.org/wikipedia/en/7/79/SasukeUchihaPartII.png",
+      image: "sasuke.png", // Make sure this file exists in your project directory
       votes: 2,
     },
   ];
@@ -47,6 +45,15 @@ document.addEventListener("DOMContentLoaded", () => {
     nameDisplay.textContent = character.name;
     imageDisplay.src = character.image;
     voteCount.textContent = character.votes;
+
+    // Optional: highlight selected
+    [...characterBar.children].forEach((child) =>
+      child.classList.remove("selected")
+    );
+    const selected = [...characterBar.children].find(
+      (child) => child.textContent === character.name
+    );
+    selected?.classList.add("selected");
   }
 
   // Handle vote form submission
@@ -55,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!currentCharacter) return;
 
     const newVotes = parseInt(voteInput.value);
-    if (!isNaN(newVotes)) {
+    if (!isNaN(newVotes) && newVotes > 0) {
       currentCharacter.votes += newVotes;
       voteCount.textContent = currentCharacter.votes;
       voteForm.reset();
@@ -93,4 +100,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Load everything on page start
   loadCharacters();
+  displayCharacter(characters[0]); // Show first character by default
 });
